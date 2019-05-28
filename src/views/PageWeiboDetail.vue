@@ -11,7 +11,8 @@
               <sui-card-header>{{weibo.nickName}}</sui-card-header>
               <sui-card-meta>{{weibo.gmtCreate}}</sui-card-meta>
               <sui-card-meta class="right floated">
-                <Dropdown v-if="weibo.userId==$store.state.user.userId" :on-click="handleDetailOperation">
+                  <!-- 事件绑定是@，不是: -->
+                <Dropdown v-if="weibo.userId==$store.state.user.userId" @on-click="handleDetailOperation">
                   <a href="javascript:void(0)">
                     下拉框<Icon type="ios-arrow-down"></Icon>
                   </a>
