@@ -13,8 +13,9 @@
               <sui-card-meta class="right floated">
                   <!-- 事件绑定是@，不是: -->
                 <Dropdown v-if="weibo.userId==$store.state.user.userId" @on-click="handleDetailOperation">
+                <!--<Dropdown v-if="weibo.userId==$store.state.user.userId" @on-click="getWeiboDelete">-->
                   <a href="javascript:void(0)">
-                    下拉框<Icon type="ios-arrow-down"></Icon>
+                    <Icon type="ios-arrow-down"></Icon>
                   </a>
                   <DropdownMenu slot="list" >
                     <DropdownItem name="edit">编辑</DropdownItem>
@@ -37,7 +38,7 @@
                   收藏
                 </Col>
                 <Col span="6">
-                  <sui-icon name="like"/>转发{{weibo.forwardingAmount}}
+                  <sui-icon name="like" @click="handleRepostClick"/>转发{{weibo.forwardingAmount}}
                 </Col>
                 <Col span="6">
                   <sui-icon name="star"/> 评论{{weibo.commentAmount}}
@@ -162,17 +163,22 @@
         <!--</Row>-->
       </Col>
 
-      <Modal v-model="isRepostAvailable" title="編輯微博" @on-ok="ok" @on-cancel="cancel">
-        <sui-card class="fluid" style="background-color: #EEEEEE">
-          <sui-card-content>
-            <sui-card-description>
-              @王雪婷：Elliot Fu is a film-maker from New York.
-            </sui-card-description>
-          </sui-card-content>
-        </sui-card>
-        <Input v-model="repostWeiboText" type="textarea" :autosize="{minRows: 5,maxRows: 10}"
+      <Modal v-model="isEditAvailable" title="编辑微博" @on-ok="ok1" @on-cancel="cancel1">
+        <Input v-model="editWeiboText" type="textarea" :autosize="{minRows: 5,maxRows: 10}"
                placeholder="Enter something..."/>
       </Modal>
+
+        <Modal v-model="isRepostAvailable" title="转发微博" @on-ok="ok2" @on-cancel="cancel2">
+            <sui-card class="fluid" style="background-color: #EEEEEE">
+                <sui-card-content>
+                    <sui-card-description>
+                        @{{weibo.nickName}}:{{weibo.weiboContent}}
+                    </sui-card-description>
+                </sui-card-content>
+            </sui-card>
+            <Input v-model="repostWeiboText" type="textarea" :autosize="{minRows: 5,maxRows: 10}"
+                   placeholder="说说你的看法吧..."/>
+        </Modal>
 
     </Row>
   </div>
@@ -203,8 +209,10 @@
           comment:[],
           isComment:false,
           comText:'',
+          isEditAvailable:false,
           isRepostAvailable:false,
-          repostWeiboText:''
+          repostWeiboText:'',
+          editWeiboText:''
       }
     },
     methods:{
@@ -214,6 +222,8 @@
                     let result = response.data;
                     if (result.success) {
                         this.weibo = result.data;
+                        this.editWeiboText=this.weibo.weiboContent;
+                        // this.repostWeiboText=this.weibo.weiboContent
                         // console.log(result.data)
                     } else {
                         this.$Message.error('获取微博详情失败');
@@ -275,6 +285,21 @@
                     this.getWeiboDetail();
                 }else {
                     this.$Message.info(result.msg);
+                }
+            })
+        },
+        handleRepostClick(){
+            this.$axios.get('/api/get-weibo-message',{
+                weiboId: weiboId
+            }).then(response => {
+                let result = response.data;
+                if (result.success) {
+
+                    this.isRepostAvailable=true;
+                    this.$Message.info("取消点赞成功")
+                    this.getWeiboDetail();
+                } else {
+                    this.$Message.info(result.msg)
                 }
             })
         },
@@ -362,18 +387,64 @@
             })
         },
         handleDetailOperation(name){
-            this.$Message.info("下拉框被点击")
-            this.$Message.info(name);
+            // this.$Message.info(name);
             switch (name) {
-                case 'edit':this.isRepostAvailable=true;break;
-                case 'delete':this.getWeiboDelete;break;
+                case 'edit':this.isEditAvailable=true;;break;
+                case 'delete':this.getWeiboDelete();break;
             }
         },
-        ok() {
-            this.$Message.info('編輯微博成功');
+        getWeiboDelete(){
+            this.$Message.info("删除操作")
+            this.$axios.post('/api/delete-weibo?weiboId='+this.weiboId).then(response => {
+                let result = response.data;
+                if (result.success) {
+                    this.$Message.info("删除成功")
+                    //跳转回主页
+                    this.$router.push('/')
+                } else {
+                    this.$Message.info(result.msg)
+                }
+            })
         },
-        cancel() {
-            this.$Message.info('取消編輯');
+        ok1() {
+            //编辑微博
+            // this.$axios.post('/api/update-weibo', {
+            //     followUserId: this.$store.state.user.userId,
+            //     beFollowedUserId: userId
+            // }).then(response => {
+            //     let result = response.data;
+            //     if (result.success) {
+            //         this.$Message.info("关注成功")
+            //         this.getRecomUserList();
+            //     } else {
+            //         this.$Message.info(result.msg)
+            //     }
+            // })
+            // update-weibo
+            this.$Message.info('编辑微博成功');
+        },
+        cancel1() {
+            this.$Message.info('取消编辑');
+        },
+        ok2() {
+            //转发微博
+            // this.$axios.post('/api/update-weibo', {
+            //     followUserId: this.$store.state.user.userId,
+            //     beFollowedUserId: userId
+            // }).then(response => {
+            //     let result = response.data;
+            //     if (result.success) {
+            //         this.$Message.info("关注成功")
+            //         this.getRecomUserList();
+            //     } else {
+            //         this.$Message.info(result.msg)
+            //     }
+            // })
+            // update-weibo
+            this.$Message.info('转发微博成功');
+        },
+        cancel2() {
+            this.$Message.info('取消转发');
         }
     },
     components:{

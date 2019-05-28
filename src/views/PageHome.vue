@@ -73,7 +73,7 @@
                                         收藏
                                     </Col>
                                     <Col span="6">
-                                        <sui-icon name="like"/>
+                                        <sui-icon name="like" @click="handleRepostClick(item.nickName,item.weiboContent)"/>
                                         转发{{item.forwardingAmount}}
                                     </Col>
                                     <Col span="6">
@@ -113,16 +113,20 @@
                                         </sui-card-content>
                                         <sui-card-content extra>
                                             <span>
-                                                <sui-icon name="star" @click="handleCollectionClick(item.weiboId)"/> 收藏
+                                                <sui-icon v-if="item.collect==true" style="color: orange" name="star" @click="handleUnCollectionClick(item.weiboId)"/>
+                                                <sui-icon v-else name="star" @click="handleCollectionClick(item.weiboId)"/>
+                                                收藏
                                             </span>
                                             <span>
-                                                <sui-icon name="like"/>转发{{item.forwardingAmount}}
+                                                <sui-icon name="like" @click="handleRepostClick(item.nickName,item.weiboContent)"/>转发{{item.forwardingAmount}}
                                             </span>
                                             <span>
-                                                <sui-icon name="star"/> 评论{{item.commentAmount}}
+                                                <sui-icon name="star" @click="handleCommentClick(item.weiboId)"/> 评论{{item.commentAmount}}
                                             </span>
                                             <span>
-                                                <sui-icon name="like" @click="handleLikeClick(item.weiboId)"/>点赞{{item.likeAmount}}
+                                                <sui-icon v-if="item.isLike" name="like" style="color: red" @click="handleUnLikeClick(item.weiboId)"/>
+                                                <sui-icon v-else name="like" @click="handleLikeClick(item.weiboId)"/>
+                                                点赞{{item.likeAmount}}
                                             </span>
                                         </sui-card-content>
                                     </sui-card>
@@ -184,6 +188,18 @@
                 </Row>
             </Col>
 
+            <Modal v-model="isRepostAvailable" title="转发微博" @on-ok="ok" @on-cancel="cancel">
+                <sui-card class="fluid" style="background-color: #EEEEEE">
+                    <sui-card-content>
+                        <sui-card-description>
+                            {{this.repostorg_weibo_content}}
+                        </sui-card-description>
+                    </sui-card-content>
+                </sui-card>
+                <Input v-model="repostWeiboText" type="textarea" :autosize="{minRows: 5,maxRows: 10}"
+                       placeholder="说说你的看法吧..."/>
+            </Modal>
+
         </Row>
     </div>
 </template>
@@ -238,7 +254,10 @@ export default {
             isDisable: true,
             isText: true,
             files: [],
-            bodyName: 'home'
+            bodyName: 'home',
+            repostorg_weibo_content:'',
+            isRepostAvailable:false,
+            repostWeiboText:''
         }
     },
     methods: {
@@ -489,6 +508,17 @@ export default {
                 }
             })
         },
+        handleRepostClick(nickName,weiboContent){
+            this.$Message.info("转发按钮被点击");
+            this.repostorg_weibo_content='@'+nickName+':'+weiboContent;
+            this.isRepostAvailable=true;
+        },
+        ok() {
+            this.$Message.info('转发微博成功');
+        },
+        cancel() {
+            this.$Message.info('取消转发');
+        }
     },
     watch: {
         weibotext: function () {
