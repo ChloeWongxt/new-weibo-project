@@ -1,8 +1,9 @@
 <template>
   <div>
     <Row class="home-back">
-      <Col span="11" offset="4" style="margin-top: 10px">
         <!--微博正文-->
+      <Col span="11" offset="4" style="margin-top: 10px">
+
         <div class="fluid">
           <sui-card class="weibo-card">
             <sui-card-content>
@@ -25,6 +26,66 @@
               </sui-card-meta>
               <sui-card-description>
                 {{weibo.weiboContent}}
+                  <!--父微博-->
+                  <div v-if="weibo.weiboType">
+                  <sui-card v-if="weibo.fatherWeibo" class="weibo-card" :key="weibo.fatherWeibo.weiboId" style="background-color: ghostwhite">
+                      <sui-card-content>
+                          <sui-image class="left floated" size="mini" :circular="true"
+                                     :src="weibo.fatherWeibo.userAvatar"/>
+                          <sui-card-header>{{weibo.fatherWeibo.nickName}}</sui-card-header>
+                          <sui-card-meta>{{weibo.fatherWeibo.gmtCreate}}</sui-card-meta>
+                          <!--<sui-card-meta class="right floated">-->
+                          <!--<Dropdown>-->
+                          <!--<a href="javascript:void(0)">-->
+                          <!--<Icon type="ios-arrow-down"></Icon>-->
+                          <!--</a>-->
+                          <!--<DropdownMenu slot="list" on-click="handleDetailOperation">-->
+                          <!--<DropdownItem v-if="weibo.userId==$store.state.user.userId" name="edit">编辑</DropdownItem>-->
+                          <!--<DropdownItem v-if="weibo.userId==$store.state.user.userId" name="delete">删除</DropdownItem>-->
+                          <!--<DropdownItem name="detail">详情</DropdownItem>-->
+                          <!--</DropdownMenu>-->
+                          <!--</Dropdown>-->
+                          <!--</sui-card-meta>-->
+                          <sui-card-description>
+                              {{weibo.fatherWeibo.weiboContent}}
+                          </sui-card-description>
+                          <sui-image-group size="small">
+                              <sui-image v-for="(fileSrc,index) in JSON.parse(weibo.fatherWeibo.fileList)" :src="fileSrc"
+                                         :key="index"/>
+                          </sui-image-group>
+                      </sui-card-content>
+                      <sui-card-content extra>
+                          <Row>
+                              <Col span="6">
+                                  <sui-icon v-if="weibo.fatherWeibo.collect==true" style="color: orange" name="star" @click="handleUnCollectionClick(weibo.fatherWeibo.weiboId)"/>
+                                  <sui-icon v-else name="star" @click="handleCollectionClick(weibo.weiboId)"/>
+                                  收藏
+                              </Col>
+                              <Col span="6">
+                                  <sui-icon name="like" @click="handleRepostClick(weibo.fatherWeibo.nickName,weibo.fatherWeibo.weiboContent,weibo.fatherWeibo.weiboId)"/>
+                                  转发{{weibo.fatherWeibo.forwardingAmount}}
+                              </Col>
+                              <Col span="6">
+                                  <sui-icon name="star" @click="handleCommentClick(weibo.fatherWeibo.weiboId)"/>
+                                  评论{{weibo.fatherWeibo.commentAmount}}
+                              </Col>
+                              <Col span="6">
+                                  <sui-icon v-if="weibo.fatherWeibo.isLike" name="like" style="color: red" @click="handleUnLikeClick(weibo.fatherWeibo.weiboId)"/>
+                                  <sui-icon v-else name="like" @click="handleLikeClick(weibo.fatherWeibo.weiboId)"/>
+                                  点赞{{weibo.fatherWeibo.likeAmount}}
+                              </Col>
+                          </Row>
+                      </sui-card-content>
+                  </sui-card>
+                      <!--v-if="weibo.weiboType&&weibo.fatherWeibo==null"-->
+                      <sui-card v-else  class="weibo-card"  style="background-color: ghostwhite">
+                          <sui-card-content>
+                              <sui-card-description>
+                                  原微博已删除
+                              </sui-card-description>
+                          </sui-card-content>
+                      </sui-card>
+                  </div>
               </sui-card-description>
               <sui-image-group size="small">
                 <sui-image v-for="(fileSrc,index) in JSON.parse(weibo.fileList)" :src="fileSrc" :key="index"/>
@@ -121,46 +182,148 @@
         <!--<Comment ></Comment>-->
       </Col>
 
+        <!--热门微博滚动窗口-->
       <Col span="5" style="margin-left: 10px;">
         <Row>
           <Col span="24" style="margin-top: 10px">
-            <!--推荐用户滚动窗口-->
-            <sui-card>
-              <sui-card-content>
-                <sui-card-header style="text-align: left">
-                  推荐用户
-                </sui-card-header>
-              </sui-card-content>
-              <sui-card-content v-for="(item,index) in recomUser" :key="index" style="text-align: left">
-                <sui-image
-                        :src="item.userAvatar"
-                        shape="circular"
-                        size="mini"
-                />
-                <span style="margin-left: 10px" @click="handleRecomUserClick(item.userId)">{{item.nickName}}</span>
-                <span slot="right">
-                    <Icon v-if="item.follow" size="18" type="md-checkmark"
-                          color="green" @click="handleUnFollowClick(item.userId)" :key="index"/>
-                    <Icon v-else size="18" type="md-add" color="red"
-                          @click="handleFollowClick(item.userId)"/>
+              <Row v-if="!hotweiboListEmpty">
+                  <div class="fluid">
+                      <sui-card class="weibo-card">
+                          <sui-card-content>
+                              <sui-card-header>
+                                  热门微博
+                              </sui-card-header>
+                          </sui-card-content>
+                          <sui-card-content extra>
+                              <div class="fluid">
+                                  <sui-card class="weibo-card" v-for="item in hotWeibo" :key="item.id">
+                                      <sui-card-content>
+                                          <sui-image class="left floated" size="mini" :circular="true"
+                                                     :src="item.userAvatar"/>
+                                          <sui-card-header>{{item.nickName}}</sui-card-header>
+                                          <sui-card-meta>{{item.gmtCreate}}</sui-card-meta>
+                                          <!--<sui-card-meta class="right floated">-->
+                                          <!--<Dropdown>-->
+                                          <!--<a href="javascript:void(0)">-->
+                                          <!--<Icon type="ios-arrow-down"></Icon>-->
+                                          <!--</a>-->
+                                          <!--<DropdownMenu slot="list" on-click="handleDetailOperation">-->
+                                          <!--<DropdownItem v-if="item.userId==$store.state.user.userId" name="edit">编辑</DropdownItem>-->
+                                          <!--<DropdownItem v-if="item.userId==$store.state.user.userId" name="delete">删除</DropdownItem>-->
+                                          <!--<DropdownItem name="detail">详情</DropdownItem>-->
+                                          <!--</DropdownMenu>-->
+                                          <!--</Dropdown>-->
+                                          <!--</sui-card-meta>-->
+                                          <sui-card-description>
+                                              {{item.weiboContent}}
+                                              <!--父微博-->
+                                              <div v-if="item.weiboType">
+                                                  <sui-card class="weibo-card" v-if="item.fatherWeibo" :key="item.fatherWeibo.weiboId" style="background-color: ghostwhite">
+                                                      <sui-card-content>
+                                                          <sui-image class="left floated" size="mini" :circular="true"
+                                                                     :src="item.fatherWeibo.userAvatar"/>
+                                                          <sui-card-header>{{item.fatherWeibo.nickName}}</sui-card-header>
+                                                          <sui-card-meta>{{item.fatherWeibo.gmtCreate}}</sui-card-meta>
+                                                          <!--<sui-card-meta class="right floated">-->
+                                                          <!--<Dropdown>-->
+                                                          <!--<a href="javascript:void(0)">-->
+                                                          <!--<Icon type="ios-arrow-down"></Icon>-->
+                                                          <!--</a>-->
+                                                          <!--<DropdownMenu slot="list" on-click="handleDetailOperation">-->
+                                                          <!--<DropdownItem v-if="item.userId==$store.state.user.userId" name="edit">编辑</DropdownItem>-->
+                                                          <!--<DropdownItem v-if="item.userId==$store.state.user.userId" name="delete">删除</DropdownItem>-->
+                                                          <!--<DropdownItem name="detail">详情</DropdownItem>-->
+                                                          <!--</DropdownMenu>-->
+                                                          <!--</Dropdown>-->
+                                                          <!--</sui-card-meta>-->
+                                                          <sui-card-description>
+                                                              {{item.fatherWeibo.weiboContent}}
+                                                          </sui-card-description>
+                                                          <sui-image-group size="small">
+                                                              <sui-image v-for="(fileSrc,index) in JSON.parse(item.fatherWeibo.fileList)" :src="fileSrc"
+                                                                         :key="index"/>
+                                                          </sui-image-group>
+                                                      </sui-card-content>
+                                                      <sui-card-content extra>
+                                                          <Row>
+                                                              <Col span="6">
+                                                                  <sui-icon v-if="item.fatherWeibo.collect" style="color: orange" name="star" @click="handleUnCollectionClick(item.fatherWeibo.weiboId)"/>
+                                                                  <sui-icon v-else name="star" @click="handleCollectionClick(item.weiboId)"/>
+                                                                  收藏
+                                                              </Col>
+                                                              <Col span="6">
+                                                                  <sui-icon name="like" @click="handleRepostClick(item.fatherWeibo.nickName,item.fatherWeibo.weiboContent,item.fatherWeibo.weiboId)"/>
+                                                                  转发{{item.fatherWeibo.forwardingAmount}}
+                                                              </Col>
+                                                              <Col span="6">
+                                                                  <sui-icon name="star" @click="handleCommentClick(item.fatherWeibo.weiboId)"/>
+                                                                  评论{{item.fatherWeibo.commentAmount}}
+                                                              </Col>
+                                                              <Col span="6">
+                                                                  <sui-icon v-if="item.fatherWeibo.isLike" name="like" style="color: red" @click="handleUnLikeClick(item.fatherWeibo.weiboId)"/>
+                                                                  <sui-icon v-else name="like" @click="handleLikeClick(item.fatherWeibo.weiboId)"/>
+                                                                  点赞{{item.fatherWeibo.likeAmount}}
+                                                              </Col>
 
-                </span>
-              </sui-card-content>
-            </sui-card>
+                                                          </Row>
+                                                      </sui-card-content>
+                                                  </sui-card>
+                                                  <sui-card v-else  class="weibo-card"  style="background-color: ghostwhite">
+                                                      <sui-card-content>
+                                                          <sui-card-description>
+                                                              原微博已删除
+                                                          </sui-card-description>
+                                                      </sui-card-content>
+                                                  </sui-card>
+                                              </div>
+                                          </sui-card-description>
+                                          <sui-image-group size="small">
+                                              <sui-image v-for="(fileSrc,index) in JSON.parse(item.fileList)" :src="fileSrc"
+                                                         :key="index"/>
+                                          </sui-image-group>
+                                      </sui-card-content>
+                                      <sui-card-content extra>
+                                          <Row>
+                                              <Col span="6">
+                                                  <sui-icon v-if="item.collect==true" style="color: orange" name="star" @click="handleUnCollectionClick(item.weiboId)" key="itemcollect"/>
+                                                  <sui-icon v-else name="star" @click="handleCollectionClick(item.weiboId)"/>
+                                                  收藏
+                                              </Col>
+                                              <Col span="6">
+                                                  <sui-icon name="like" @click="handleRepostClick(item.nickName,item.weiboContent,item.weiboId)"/>
+                                                  转发{{item.forwardingAmount}}
+                                              </Col>
+                                              <Col span="6">
+                                                  <sui-icon name="star" @click="handleCommentClick(item.weiboId)"/>
+                                                  评论{{item.commentAmount}}
+                                              </Col>
+                                              <Col span="6">
+                                                  <sui-icon v-if="item.isLike" name="like" style="color: red" @click="handleUnLikeClick(item.weiboId)"/>
+                                                  <sui-icon v-else name="like" @click="handleLikeClick(item.weiboId)"/>
+                                                  点赞{{item.likeAmount}}
+                                              </Col>
+
+                                          </Row>
+                                      </sui-card-content>
+                                  </sui-card>
+                              </div>
+                          </sui-card-content>
+                      </sui-card>
+                  </div>
+              </Row>
+              <Row v-if="!hotweiboListEmpty">
+                  <sui-card class="fluid" style="margin-bottom: 10px;">
+                      <sui-card-content>
+                          <sui-card-description>
+                              <!--分页-->
+                              <Page :current="this.hotpage.currentPage" :page-size="10" :total="this.hotpage.totalRecord"
+                                    simple @on-change="handleHotPageChange"/>
+                          </sui-card-description>
+                      </sui-card-content>
+                  </sui-card>
+              </Row>
           </Col>
         </Row>
-        <Row>
-          <Col span="24" style="margin-top: 10px;margin-bottom: 10px">
-            <!--热门用户滚动窗口-->
-            <hot-user></hot-user>
-          </Col>
-        </Row>
-        <!--<Row>-->
-        <!--<Col span="24" style="margin-top: 10px">-->
-        <!--&lt;!&ndash;热门话题滚动窗口&ndash;&gt;-->
-        <!--<hot-topic></hot-topic>-->
-        <!--</Col>-->
-        <!--</Row>-->
       </Col>
 
       <Modal v-model="isEditAvailable" title="编辑微博" @on-ok="ok1" @on-cancel="cancel1">
@@ -212,7 +375,14 @@
           isEditAvailable:false,
           isRepostAvailable:false,
           repostWeiboText:'',
-          editWeiboText:''
+          editWeiboText:'',
+          hotweiboListEmpty:true,
+          hotpage: {
+              currentPage: 1,
+              totalPage: 0,
+              totalRecord: 0,
+          },
+          hotWeibo:[]
       }
     },
     methods:{
@@ -289,15 +459,13 @@
             })
         },
         handleRepostClick(){
-            this.$axios.get('/api/get-weibo-message',{
-                weiboId: weiboId
-            }).then(response => {
+            this.$axios.get('/api/get-weibo-message?weiboId='+this.weiboId).then(response => {
                 let result = response.data;
                 if (result.success) {
-
+                    if (result.data!=null){
+                        repostWeiboText=result.data
+                    }
                     this.isRepostAvailable=true;
-                    this.$Message.info("取消点赞成功")
-                    this.getWeiboDetail();
                 } else {
                     this.$Message.info(result.msg)
                 }
@@ -372,7 +540,8 @@
                     this.$Message.info(result.msg)
                 }
             })
-        },handleFollowClick(userId) {
+        },
+        handleFollowClick(userId) {
             this.$axios.post('/api/add-follow', {
                 followUserId: this.$store.state.user.userId,
                 beFollowedUserId: userId
@@ -407,45 +576,80 @@
             })
         },
         ok1() {
-            //编辑微博
-            // this.$axios.post('/api/update-weibo', {
-            //     followUserId: this.$store.state.user.userId,
-            //     beFollowedUserId: userId
-            // }).then(response => {
-            //     let result = response.data;
-            //     if (result.success) {
-            //         this.$Message.info("关注成功")
-            //         this.getRecomUserList();
-            //     } else {
-            //         this.$Message.info(result.msg)
-            //     }
-            // })
-            // update-weibo
-            this.$Message.info('编辑微博成功');
+            // 编辑微博
+            this.$axios.post('/api/update-weibo', {
+                userId:this.$store.state.user.userId,
+                weiboId:this.weiboId,
+                weiboContent:this.editWeiboText
+            }).then(response => {
+                let result = response.data;
+                if (result.success) {
+                    this.$Message.info("修改成功")
+                    this.getWeiboDetail()
+                } else {
+                    this.$Message.info(result.msg)
+                }
+            })
         },
         cancel1() {
             this.$Message.info('取消编辑');
         },
         ok2() {
             //转发微博
-            // this.$axios.post('/api/update-weibo', {
-            //     followUserId: this.$store.state.user.userId,
-            //     beFollowedUserId: userId
-            // }).then(response => {
-            //     let result = response.data;
-            //     if (result.success) {
-            //         this.$Message.info("关注成功")
-            //         this.getRecomUserList();
-            //     } else {
-            //         this.$Message.info(result.msg)
-            //     }
-            // })
-            // update-weibo
+            this.$axios.post('/api/forwarding-weibo', {
+                weiboId:this.weiboId,
+                userId:this.$store.state.user.userId,
+                weiboContent:this.repostWeiboText
+            }).then(response => {
+                let result = response.data;
+                if (result.success) {
+                    this.$Message.info("转发成功")
+                    this.getWeiboDetail();
+                } else {
+                    this.$Message.info(result.msg)
+                }
+            })
             this.$Message.info('转发微博成功');
         },
         cancel2() {
             this.$Message.info('取消转发');
-        }
+        },
+        handleCommentClick(weiboId) {
+            this.$router.push(`/weibodetail/${weiboId}`)
+        },
+        getHotWeiboList() {
+            this.$axios.get(`/api/get-hot-weibo?userId=${this.$store.state.user.userId} &pageNum=${this.hotpage.currentPage}`).then(
+                response => {
+                    let result = response.data;
+                    console.log("热门微博",result.data)
+                    if (result.success) {
+                        this.hotWeibo = result.data.list
+                        this.hotpage.totalRecord = result.data.totalRecord
+                        if (result.data.totalRecord != 0) {
+                            this.hotweiboListEmpty = false;
+                        }
+                    } else {
+                        this.$Message.error('获取热门微博失败');
+                    }
+                }
+            )
+        },
+        handleHotPageChange(pageNum) {
+            this.$axios.get('/api/get-hot-weibo?userId=' + this.$store.state.user.userId + '&pageNum=' + pageNum).then(
+                response => {
+                    let result = response.data;
+                    if (result.success) {
+                        this.hotWeibo = result.data.list
+                        this.hotpage.totalRecord = result.data.totalRecord
+                        if (result.data.totalRecord != 0) {
+                            this.hotweiboListEmpty = false;
+                        }
+                    } else {
+                        this.$Message.error('获取热门微博失败');
+                    }
+                }
+            )
+        },
     },
     components:{
         Card,
@@ -458,7 +662,7 @@
     mounted(){
         this.getWeiboDetail();
         this.getWeiboComment();
-        this.getRecomUserList()
+        this.getHotWeiboList();
           this.user.nickName=this.$store.state.user.nickName;
           this.user.beFollowedAmount=this.$store.state.userdata.beFollowedAmount;
           this.user.followAmount=this.$store.state.userdata.followAmount;
