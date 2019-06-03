@@ -61,16 +61,41 @@
                             </Col>
                         </Row>
 
-                        <Row class="left-box-item">
+                        <Row class="left-box-item" v-if="comFollowUser">
                             <div>
                                 <sui-card>
                                     <sui-card-content>
                                         <sui-card-header>
-                                            相册
+                                            微关系
                                         </sui-card-header>
                                     </sui-card-content>
                                     <sui-card-content>
-                                        图片
+                                        共同关注
+                                        <br/>
+                                        <sui-statistics-group :columns="4">
+                                        <sui-statistic in-group v-for="item in comFollowUser" :key="item.userId" size="mini">
+                                            <sui-statistic-value>
+                                                <img :src="item.userAvatar" class="ui circular inline image">
+                                            </sui-statistic-value>
+                                            <sui-statistic-label style="max-width: 56px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis ">
+                                                {{item.nickName}}
+                                            </sui-statistic-label>
+                                        </sui-statistic>
+                                        </sui-statistics-group>
+                                        <br/>
+                                        <Divider/>
+                                        我关注的人也关注他
+                                        <br/>
+                                        <sui-statistics-group :columns="4">
+                                        <sui-statistic in-group v-for="item in myFollowHerUser" size="mini">
+                                            <sui-statistic-value>
+                                                <img :src="item.userAvatar" class="ui circular inline image">
+                                            </sui-statistic-value>
+                                            <sui-statistic-label style="max-width: 56px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis ">
+                                                {{item.nickName}}
+                                            </sui-statistic-label>
+                                        </sui-statistic>
+                                        </sui-statistics-group>
                                     </sui-card-content>
                                     <sui-card-content extra>
                                         <sui-button>查看更多</sui-button>
@@ -219,36 +244,72 @@ export default {
                 he:'搜索他的微博',
                 me:'搜索我的微博',
             },
-            isAvaliable:false
+            isAvaliable:false,
+            comFollowUser:[],
+            myFollowHerUser:[]
         }
     },
     components: {},
     mounted() {
-        this.$axios.get(`/api/query-user?userId=${this.userId}`)
-            .then(
-                response => {
-                    let result = response.data;
-                    // console.log(result);
-                    if (result.success) {
-                        let user = result.data
-                        this.user = user
-                        this.getUserData()
-                    }
-                }
-            )
-        this.getHomeWeibo()
-        if (this.userId!=this.$store.state.user.userId){
-            if(this.user.userGender=='男'){
-                this.noteText=this.noteTextOp.he
-            }else {
-                this.noteText=this.noteTextOp.she
-            }
-        }else {
-            this.noteText=this.noteTextOp.me
-            this.isAvaliable=true
-        }
+        this.getThisUserInfo();
+        this.getHomeWeibo();
+        this.checkIsUserSelf();
+        this.getComFollowAndMyFollowHerUser();
+        this.getMyFollowHerUser();
     },
     methods: {
+        getMyFollowHerUser(){
+            this.$axios.get(`/api/get-my-follow-her-user?myUserId=${this.$store.state.user.userId}&userId=${this.userId}&pageNum=1`)
+                .then(
+                    response => {
+                        let result = response.data;
+                        console.log(result);
+                        if (result.success&&result.data!=null) {
+                            let user = result.data.data.list
+                            this.myFollowHerUser = user
+                        }
+                    }
+                )
+        },
+        getComFollowAndMyFollowHerUser(){
+            this.$axios.get(`/api/get-common-follow-user?myUserId=${this.$store.state.user.userId}&userId=${this.userId}&pageNum=1`)
+                .then(
+                    response => {
+                        let result = response.data;
+                        console.log(result);
+                        if (result.success&&result.data!=null) {
+                            let user = result.data.data.list
+                            this.comFollowUser = user
+                        }
+                    }
+                )
+        },
+        checkIsUserSelf(){
+            if (this.userId!=this.$store.state.user.userId){
+                if(this.user.userGender=='男'){
+                    this.noteText=this.noteTextOp.he
+                }else {
+                    this.noteText=this.noteTextOp.she
+                }
+            }else {
+                this.noteText=this.noteTextOp.me
+                this.isAvaliable=true
+            }
+        },
+        getThisUserInfo(){
+            this.$axios.get(`/api/query-user?userId=${this.userId}`)
+                .then(
+                    response => {
+                        let result = response.data;
+                        // console.log(result);
+                        if (result.success) {
+                            let user = result.data
+                            this.user = user
+                            this.getUserData()
+                        }
+                    }
+                )
+        },
         handlePageChange(pageNum) {
             this.$axios.get('/api/get-all-weibo-of-home-page?userId=' + this.$store.state.user.userId + '&pageNum=' + pageNum).then(
                 response => {

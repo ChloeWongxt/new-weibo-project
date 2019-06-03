@@ -7,12 +7,12 @@
               <div class="text-xs-center">
                 <!--头像签名-->
                 <v-avatar size="72" color="accent" style="margin-top: 30px">
-                  <img src="/api/avatar/100.jpg" alt="avatar">
+                  <img :src="thisUser.userAvatar" alt="avatar">
                 </v-avatar>
               </div>
               <div class="pf_username">
-                <h1 class="username">易拉罐红石榴</h1>
-                <p>一句话介绍一下自己吧，让别人更了解你</p>
+                <h1 class="username">{{thisUser.nickName}}</h1>
+                <p>{{thisUser.userPerSignature}}</p>
               </div>
             </Col>
           </Row>
@@ -46,7 +46,7 @@
             <Col span="8" class="left-box">
               <Row class="left-box-item">
                 <div>
-                  <Menu theme="light" active-name="1">
+                  <Menu theme="light" active-name="fans" @on-select="handleRightMenu">
                     <MenuGroup title="互动信息">
                       <MenuItem name="follow">
                         <Icon type="md-document" />
@@ -62,7 +62,7 @@
               </Row>
             </Col>
 
-            <Col span="16">
+            <Col span="16" v-if="bodyName==='fans'">
               <!--右侧边栏-->
               <Row class="right-box-item">
                 <div class="fluid">
@@ -74,6 +74,62 @@
                     </sui-card-content>
                     <!--关注用户卡片开始-->
                     <sui-card-content >
+                      <sui-feed v-for="(item,index) in fansUser" :key="item.userId">
+                        <sui-feed-event>
+                          <sui-feed-label>
+                            <sui-image :src="item.userAvatar" />
+                          </sui-feed-label>
+                          <sui-feed-content>
+                            {{item.nickName}}
+                            <Icon style="float: right" v-if="item.follow" size="18" type="md-checkmark"
+                                  color="green" @click="handleUnFollowClick(item.userId)" :key="index"/>
+                            <Icon v-else style="float: right" size="18" type="md-add" color="red"
+                                  @click="handleFollowClick(item.userId)"/>
+                          </sui-feed-content>
+                        </sui-feed-event>
+                      </sui-feed>
+                    </sui-card-content>
+                    <!--关注用户卡片结束-->
+                  </sui-card>
+                </div>
+              </Row>
+              <Row class="page right-box-item" style="margin-top: 10px;margin-bottom: 10px">
+                <sui-card class="fluid" style="margin-bottom: 10px;">
+                  <sui-card-content>
+                    <sui-card-description>
+                      <!--分页-->
+                      <Page :current="2" :total="50" simple />
+                    </sui-card-description>
+                  </sui-card-content>
+                </sui-card>
+              </Row>
+            </Col>
+            <Col span="16" v-if="bodyName==='follow'">
+              <!--右侧边栏-->
+              <Row class="right-box-item">
+                <div class="fluid">
+                  <sui-card style="width: 100%;text-align: left">
+                    <sui-card-content >
+                      <sui-card-header>
+                        她的关注
+                      </sui-card-header>
+                    </sui-card-content>
+                    <!--关注用户卡片开始-->
+                    <sui-card-content >
+                      <sui-feed v-for="(item,index) in followUser" :key="item.userId">
+                        <sui-feed-event>
+                          <sui-feed-label>
+                            <sui-image :src="item.userAvatar" />
+                          </sui-feed-label>
+                          <sui-feed-content>
+                            {{item.nickName}}
+                            <Icon style="float: right" v-if="item.follow" size="18" type="md-checkmark"
+                                  color="green" @click="handleUnFollowClick(item.userId)" :key="index"/>
+                            <Icon v-else style="float: right" size="18" type="md-add" color="red"
+                                  @click="handleFollowClick(item.userId)"/>
+                          </sui-feed-content>
+                        </sui-feed-event>
+                      </sui-feed>
                     </sui-card-content>
                     <!--关注用户卡片结束-->
                   </sui-card>
@@ -101,38 +157,70 @@
 
   export default {
     name: "PageFans",
+      props: ['userId'],
     data() {
       return {
         right: null,
         content:'',
-        user:{
-            nickName:'',
-            beFollowedAmount:'',
-            followAmount:'',
-            weiboAmount:''
-        },
-        weibo:[]
+          thisUser:{},
+          fansUser:[],
+          followUser:[],
+          bodyName:'fans'
       }
     },
     methods:{
+        handleRightMenu(name){
+            switch (name) {
+                case 'fans':this.bodyName='fans';break;
+                case 'follow':this.bodyName='follow';break;
+            }
+        },
+        getFansUser(){
+            this.$axios.get(`/api/query-follow-me?userId=${this.userId}&myUserId=${this.$store.user.userId}&pageNum=1`)
+                .then(
+                    response => {
+                        let result = response.data;
+                        console.log(result);
+                        if (result.success) {
+                            let user = result.data
+                            this.fansUser = user
+                        }
+                    }
+                )
+        },
+        getFollowUser(){
+            this.$axios.get(`/api/query-all-follow?userId=${this.userId}&myUserId=${this.$store.user.userId}&pageNum=1`)
+                .then(
+                    response => {
+                        let result = response.data;
+                        console.log(result);
+                        if (result.success) {
+                            let user = result.data
+                            this.followUser = user
+                        }
+                    }
+                )
+        },
+        getThisUserInfo(){
+            this.$axios.get(`/api/query-user?userId=${this.userId}`)
+                .then(
+                    response => {
+                        let result = response.data;
+                        console.log(result);
+                        if (result.success) {
+                            let user = result.data
+                            this.thisUser = user
+                        }
+                    }
+                )
+        }
     },
     components:{
     },
     mounted(){
-      this.user.nickName=this.$store.state.user.nickName;
-      this.user.beFollowedAmount=this.$store.state.userdata.beFollowedAmount;
-      this.user.followAmount=this.$store.state.userdata.followAmount;
-      this.user.weiboAmount=this.$store.state.userdata.weiboAmount;
-      this.$axios.get('/api/get-all-weibo-of-home-page?userId='+this.$store.state.user.userId+'&pageNum=1').then(
-          response =>{
-              let result=response.data;
-              if (result.success){
-                  this.weibo=result.data.list
-              }else {
-                  this.$Message.error('获取主页微博失败');
-              }
-          }
-      )
+        this.getThisUserInfo();
+        this.getFollowUser();
+        this.getFansUser();
   }
   }
 </script>

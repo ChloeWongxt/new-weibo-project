@@ -15,7 +15,7 @@
                     <Col span="10" style="margin-top: 10px">
                         <!--搜索框部分-->
                         <!--<div class="search">-->
-                        <Input search placeholder="Enter something..." v-model="search" @on-click="handleSearchClick"
+                        <Input search placeholder="搜索用户/微博" v-model="search" @on-click="handleSearchClick"
                                @on-enter="handleSearchClick"/>
                         <!--<span class="placeholder">大家正在搜</span>-->
                         <!--<input type="text" class="W_input" :value="search">-->

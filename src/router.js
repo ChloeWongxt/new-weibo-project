@@ -68,13 +68,15 @@ export default new Router({
             component: WeiboSet
         },
         {
-            path: '/pagefans',
+            path: '/pagefans/:userId',
             name: 'PageFans',
+            props: true,
             component: PageFans
         },
         {
-            path: '/pagefollow',
+            path: '/pagefollow/:userId',
             name: 'PageFollow',
+            props: true,
             component: PageFollow
         }
     ]

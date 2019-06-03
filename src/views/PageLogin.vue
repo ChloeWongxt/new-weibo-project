@@ -47,7 +47,7 @@ export default {
         password: '',
         telephoneRules: [
             v => !!v || '请输入登录名',
-            v => (v && v.length > 1) || '登录名大于2个字符'
+            v => (v && v.length > 2) || '登录名为11位手机号'
         ],
         passwordRules: [
             v => !!v || '请输入密码',

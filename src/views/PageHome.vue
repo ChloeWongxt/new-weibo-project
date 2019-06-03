@@ -1055,7 +1055,8 @@ export default {
                         this.likeWeibo = result.data.data.list
                         this.likepage.totalRecord = result.data.totalRecord
                         if (result.data.totalRecord == 0) {
-                            this.likeweiboListEmpty = true;
+                            this.li
+                            keweiboListEmpty = true;
                         }
                     } else {
                         this.$Message.error('获取点赞微博失败');
