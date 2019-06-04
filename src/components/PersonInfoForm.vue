@@ -1,19 +1,19 @@
 <template>
     <Form ref="formValidate" :model="formValidate" :rules="ruleValidate" :label-width="80">
-        <FormItem label="Name" prop="name">
+        <FormItem label="昵称" prop="name">
             <Input v-model="formValidate.name" placeholder="Enter your name"></Input>
         </FormItem>
-        <FormItem label="E-mail" prop="mail">
+        <FormItem label="电子邮箱" prop="mail">
             <Input v-model="formValidate.mail" placeholder="Enter your e-mail"></Input>
         </FormItem>
-        <FormItem label="City" prop="city">
+        <FormItem label="居住地" prop="city">
             <Select v-model="formValidate.city" placeholder="Select your city">
-                <Option value="beijing">New York</Option>
-                <Option value="shanghai">London</Option>
-                <Option value="shenzhen">Sydney</Option>
+                <Option value="beijing">北京</Option>
+                <Option value="shanghai">上海</Option>
+                <Option value="shenzhen">深圳</Option>
             </Select>
         </FormItem>
-        <FormItem label="Date">
+        <FormItem label="出生日期">
             <Row>
                 <Col span="11">
                     <FormItem prop="date">
@@ -28,10 +28,10 @@
                 </Col>
             </Row>
         </FormItem>
-        <FormItem label="Gender" prop="gender">
+        <FormItem label="性别" prop="gender">
             <RadioGroup v-model="formValidate.gender">
-                <Radio label="male">Male</Radio>
-                <Radio label="female">Female</Radio>
+                <Radio label="male">男</Radio>
+                <Radio label="female">女</Radio>
             </RadioGroup>
         </FormItem>
         <FormItem label="Hobby" prop="interest">
@@ -42,7 +42,7 @@
                 <Checkbox label="Movie"></Checkbox>
             </CheckboxGroup>
         </FormItem>
-        <FormItem label="Desc" prop="desc">
+        <FormItem label="个性签名" prop="desc">
             <Input v-model="formValidate.desc" type="textarea" :autosize="{minRows: 2,maxRows: 5}" placeholder="Enter something..."></Input>
         </FormItem>
         <FormItem>

@@ -81,6 +81,8 @@
                           </sui-feed-label>
                           <sui-feed-content>
                             {{item.nickName}}
+                            <span style="float: right" v-if="item.follow">已关注</span>
+                            <span style="float: right" v-if="!item.follow">未关注</span>
                             <Icon style="float: right" v-if="item.follow" size="18" type="md-checkmark"
                                   color="green" @click="handleUnFollowClick(item.userId)" :key="index"/>
                             <Icon v-else style="float: right" size="18" type="md-add" color="red"
@@ -98,13 +100,17 @@
                   <sui-card-content>
                     <sui-card-description>
                       <!--分页-->
-                      <Page :current="2" :total="50" simple />
+                      <Page
+                            :current="fanspage.currentPage"
+                            :total="fanspage.totalRecord"
+                            :page-size="5"
+                            simple @on-change="handlefansPageChange" />
                     </sui-card-description>
                   </sui-card-content>
                 </sui-card>
               </Row>
             </Col>
-            <Col span="16" v-if="bodyName==='follow'">
+            <Col span="16" v-if="bodyName=='follow'">
               <!--右侧边栏-->
               <Row class="right-box-item">
                 <div class="fluid">
@@ -123,9 +129,12 @@
                           </sui-feed-label>
                           <sui-feed-content>
                             {{item.nickName}}
-                            <Icon style="float: right" v-if="item.follow" size="18" type="md-checkmark"
+                            <span style="float: right" v-if="item.follow">已关注</span>
+                            <span style="float: right" v-if="!item.follow">未关注</span>
+
+                            <Icon v-if="item.follow" style="float: right" size="18" type="md-checkmark"
                                   color="green" @click="handleUnFollowClick(item.userId)" :key="index"/>
-                            <Icon v-else style="float: right" size="18" type="md-add" color="red"
+                            <Icon v-if="!item.follow" style="float: right" size="18" type="md-add" color="red"
                                   @click="handleFollowClick(item.userId)"/>
                           </sui-feed-content>
                         </sui-feed-event>
@@ -140,7 +149,11 @@
                   <sui-card-content>
                     <sui-card-description>
                       <!--分页-->
-                      <Page :current="2" :total="50" simple />
+                      <Page
+                            :current="followPage.currentPage"
+                            :total="followPage.totalRecord"
+                            :page-size="5"
+                            simple @on-change="handlefollowPageChange" />
                     </sui-card-description>
                   </sui-card-content>
                 </sui-card>
@@ -165,10 +178,81 @@
           thisUser:{},
           fansUser:[],
           followUser:[],
-          bodyName:'fans'
+          bodyName:'fans',
+          fanspage: {
+              currentPage: 1,
+              totalPage: 0,
+              totalRecord: 0,
+              pageSize: 5
+          },
+          followPage: {
+              currentPage: 1,
+              totalPage: 0,
+              totalRecord: 0,
+              pageSize: 5
+          }
       }
     },
     methods:{
+        handlefansPageChange(pageNum) {
+            this.$axios.get(`/api/query-follow-me?userId=${this.userId}&myUserId=${this.$store.state.user.userId}&pageNum=${pageNum}`)
+                .then(
+                    response => {
+                        let result = response.data;
+                        console.log("粉丝",result);
+                        if (result.success) {
+                            let user = result.data.list
+                            this.fansUser = user
+                            this.fansUser.totalRecord = result.data.totalRecord
+                            console.log(this.fansUser.totalRecord)
+                        }
+                    }
+                )
+        },
+        handlefollowPageChange(pageNum) {
+            this.$axios.get(`/api/query-all-follow?userId=${this.userId}&myUserId=${this.$store.state.user.userId}&pageNum=${pageNum}`)
+                .then(
+                    response => {
+                        let result = response.data;
+                        console.log("我的关注",result);
+                        if (result.success) {
+                            let user = result.data.list
+                            this.followUser = user
+                            this.followPage.totalRecord = result.data.totalRecord
+                        }
+                    }
+                )
+        },
+        handleFollowClick(userId) {
+            this.$axios.post('/api/add-follow', {
+                followUserId: this.$store.state.user.userId,
+                beFollowedUserId: userId
+            }).then(response => {
+                let result = response.data;
+                if (result.success) {
+                    this.$Message.info("关注成功")
+                    this.getFollowUser();
+                    this.getFansUser();
+                } else {
+                    this.$Message.info(result.msg)
+                }
+            })
+        },
+        handleUnFollowClick(userId) {
+            this.$axios.post('/api/delete-follow', {
+                followUserId: this.$store.state.user.userId,
+                beFollowedUserId: userId
+            }).then(response => {
+                let result = response.data;
+                if (result.success) {
+                    this.$Message.info("取消关注成功");
+                    this.getFollowUser();
+                    this.getFansUser();
+                } else {
+                    this.$Message.info(result.msg)
+                }
+            })
+        },
         handleRightMenu(name){
             switch (name) {
                 case 'fans':this.bodyName='fans';break;
@@ -176,37 +260,42 @@
             }
         },
         getFansUser(){
-            this.$axios.get(`/api/query-follow-me?userId=${this.userId}&myUserId=${this.$store.user.userId}&pageNum=1`)
+            this.$axios.get(`/api/query-follow-me?userId=${this.userId}&myUserId=${this.$store.state.user.userId}&pageNum=${this.fanspage.currentPage}`)
                 .then(
                     response => {
                         let result = response.data;
-                        console.log(result);
+                        // console.log("粉丝",result);
                         if (result.success) {
-                            let user = result.data
+                            let user = result.data.list
                             this.fansUser = user
+                            this.fanspage.totalRecord = result.data.totalRecord
+                            // this.fanspage.currentPage=result.data.
+                            console.log(this.fansUser.totalRecord)
                         }
                     }
                 )
         },
         getFollowUser(){
-            this.$axios.get(`/api/query-all-follow?userId=${this.userId}&myUserId=${this.$store.user.userId}&pageNum=1`)
+            this.$axios.get(`/api/query-all-follow?userId=${this.userId}&myUserId=${this.$store.state.user.userId}&pageNum=${this.followPage.currentPage}`)
                 .then(
                     response => {
                         let result = response.data;
-                        console.log(result);
+                        // console.log("我的关注",result);
                         if (result.success) {
-                            let user = result.data
+                            let user = result.data.list
                             this.followUser = user
+                            this.followPage.totalRecord = result.data.totalRecord
+                            console.log(this.followUser.totalRecord)
                         }
                     }
                 )
         },
         getThisUserInfo(){
-            this.$axios.get(`/api/query-user?userId=${this.userId}`)
+            this.$axios.get(`/api/query-user?userId=${this.userId}&myUserId=${this.$store.state.user.userId}`)
                 .then(
                     response => {
                         let result = response.data;
-                        console.log(result);
+                        // console.log("当前用户",result);
                         if (result.success) {
                             let user = result.data
                             this.thisUser = user
@@ -269,7 +358,7 @@ strong{
   margin-top: 10px;
 }
 .right-box-item{
-  margin-left: 10px;
+  /*margin-left: 10px;*/
   margin-top: 10px;
 }
 

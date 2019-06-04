@@ -1017,7 +1017,7 @@ export default {
             this.$axios.get(`/api/get-hot-weibo?userId=${this.$store.state.user.userId} &pageNum=${this.hotpage.currentPage}`).then(
                 response => {
                     let result = response.data;
-                    console.log("热门微博", result.data)
+                    // console.log("热门微博", result.data)
                     if (result.success) {
                         this.hotWeibo = result.data.list
                         this.hotpage.totalRecord = result.data.totalRecord
@@ -1082,14 +1082,14 @@ export default {
         },
 
         getCollectWeiboList() {
-            console.log("getCollectWeiboList");
+            // console.log("getCollectWeiboList");
             this.$axios.get(`/api/get-collection-weibo-1?userId=${this.$store.state.user.userId}&pageNum=${this.collectepage.currentPage}`)
                 .then(response => {
                         let result = response.data;
-                        console.log("收藏微博", result.data)
+                        // console.log("收藏微博", result.data)
                         if (result.success) {
                             this.collectWeibo = result.data.data.list
-                            console.log("收藏",this.collectWeibo);
+                            // console.log("收藏",this.collectWeibo);
                             this.collectepage.totalRecord = result.data.totalRecord
                             if (result.data.totalRecord == 0) {
                                 this.collectweiboListEmpty = true;
@@ -1201,18 +1201,18 @@ export default {
             })
         },
         getHomeWeibo() {
-            console.log("getHomeWeibo");
+            // console.log("getHomeWeibo");
             this.$axios.get('/api/get-all-weibo-of-home-page?userId=' + this.$store.state.user.userId + '&pageNum=' + this.page.currentPage).then(
                 response => {
                     let result = response.data;
-                    console.log(result)
+                    // console.log(result)
                     if (result.success) {
                         if (result.data.totalRecord == 0) {
                             this.weiboListEmpty = true;
                             this.getHotWeiboList();
                         } else {
                             this.weibo = result.data.list
-                            console.log(this.weibo)
+                            // console.log(this.weibo)
                             this.page.totalPage = result.data.totalPage
                             this.page.totalRecord = result.data.totalRecord
                         }
@@ -1286,7 +1286,7 @@ export default {
             this.$router.push(`/weibodetail/${weiboId}`)
         },
         handleLeftMenuClick(name) {
-            console.log(name);
+            // console.log(name);
 
             switch (name) {
                 case 'home':
@@ -1332,7 +1332,7 @@ export default {
                 let result = response.data;
                 if (result.success) {
                     let followtext = result.msg;
-                    console.log(followtext)
+                    // console.log(followtext)
                     if (followtext == 'mutualfollow') {
                         isFollow = true
                     }

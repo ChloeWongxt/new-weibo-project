@@ -297,7 +297,7 @@ export default {
             }
         },
         getThisUserInfo(){
-            this.$axios.get(`/api/query-user?userId=${this.userId}`)
+            this.$axios.get(`/api/query-user?userId=${this.userId}&myUserId=${this.$store.state.user.userId}`)
                 .then(
                     response => {
                         let result = response.data;

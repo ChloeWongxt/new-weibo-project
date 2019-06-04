@@ -21,7 +21,7 @@
           <p slot="title" >我的信息</p>
           <Collapse v-model="value2" accordion>
             <Panel name="password" hide-arrow class="pandle-item">
-              登录名：雪婷Chloe 修改密码
+              昵称名：{{$store.state.user.nickName}} <span style="float: right;margin-right: 10px">修改密码</span>
               <div slot="content" class="pandle-item">
                 <div style="margin: 10px 0">
                   原密码：<sui-input type="password" placeholder="请输入原密码" icon="search" />
@@ -37,37 +37,37 @@
               </div>
             </Panel>
             <Panel name="phoneNum" hide-arrow class="pandle-item">
-              手机号 查看
+              手机号 <span style="float: right;margin-right: 10px">查看</span>
               <p slot="content">
                 手机号：1234214321
               </p>
             </Panel>
             <Panel name="nickName" hide-arrow class="pandle-item">
-              昵称 编辑
+              登录名 <span style="float: right;margin-right: 10px">编辑</span>
               <p slot="content">
-                昵称：雪婷Chloe
+                登录名：{{$store.state.user.logName}}
               </p>
             </Panel>
             <Panel name="personInfo" hide-arrow class="pandle-item">
-              个人资料 编辑
+              个人资料 <span style="float: right;margin-right: 10px">编辑</span>
               <p slot="content">
                 <person-info-form></person-info-form>
               </p>
             </Panel>
             <Panel name="education" hide-arrow class="pandle-item">
-              教育信息 编辑
+              教育信息 <span style="float: right;margin-right: 10px">编辑</span>
               <p slot="content">
                 2015-2019 中北大学大数据学院
               </p>
             </Panel>
             <Panel name="carr" hide-arrow class="pandle-item">
-              职业信息 编辑
+              职业信息 <span style="float: right;margin-right: 10px">编辑</span>
               <p slot="content">
                 学生
               </p>
             </Panel>
             <Panel name="7" hide-arrow class="pandle-item">
-              个人标签 编辑
+              个人标签 <span style="float: right;margin-right: 10px">编辑</span>
               <p slot="content">
                 <Tag v-for="item in count" :key="item" :name="item" closable @on-close="handleClose2">
                   标签{{ item + 1 }}
@@ -77,13 +77,13 @@
               </p>
             </Panel>
             <Panel name="8" hide-arrow class="pandle-item">
-              收货地址 编辑
+              收货地址 <span style="float: right;margin-right: 10px">编辑</span>
               <p slot="content">
                 四川省成都市
               </p>
             </Panel>
             <Panel name="9" hide-arrow class="pandle-item">
-              个性域名 编辑
+              个性域名 <span style="float: right;margin-right: 10px">编辑</span>
               <p slot="content">
                 https://www.weibo.com
               </p>
