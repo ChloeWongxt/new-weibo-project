@@ -31,7 +31,7 @@
                         <sui-card style="text-align:left;margin-bottom: 10px" class="fluid">
                             <sui-card-content>
                                 <sui-card-header style="">
-                                    用户搜索结果
+                                    微博搜索结果
                                 </sui-card-header>
                             </sui-card-content>
                             <sui-card-content>
@@ -202,11 +202,13 @@
                                 </sui-card-header>
                             </sui-card-content>
                             <sui-card-content v-if="!userListEmpty"  v-for="(item,index) in searchUser" :key="index" style="text-align: left">
+                                <router-link :to="'/personhome/' + item.userId">
                                 <sui-image
                                         :src="item.userAvatar"
                                         shape="circular"
                                         size="mini"
                                 />
+                                </router-link>
                                 <span style="margin-left: 10px" @click="handleRecomUserClick(item.userId)">{{item.nickName}}</span>
                                 <span slot="right">
                                             <Icon v-if="item.follow" size="18" type="md-checkmark"
@@ -271,6 +273,67 @@ export default {
         }
     },
     methods: {
+        handleCommentClick(weiboId) {
+            this.$router.push(`/weibodetail/${weiboId}`)
+        },
+        handleLikeClick(weiboId) {
+            this.$axios.post('/api/add-like', {
+                userId: this.$store.state.user.userId,
+                weiboId: weiboId
+            }).then(response => {
+                let result = response.data;
+                if (result.success) {
+                    this.$Message.info("点赞成功")
+                    this.getSeaarchWeibo(this.q)
+                } else {
+                    this.$Message.info(result.msg)
+                }
+            })
+        },
+        handleUnLikeClick(weiboId) {
+            this.$axios.post('/api/delete-like', {
+                userId: this.$store.state.user.userId,
+                weiboId: weiboId
+            }).then(response => {
+                let result = response.data;
+                if (result.success) {
+                    this.$Message.info("取消点赞成功")
+                    this.getSeaarchWeibo(this.q)
+                } else {
+                    this.$Message.info(result.msg)
+                }
+            })
+        },
+        handleCollectionClick(weiboId) {
+            this.$axios.post('/api/add-collection', {
+                userId: this.$store.state.user.userId,
+                weiboId: weiboId
+            }).then(response => {
+                let result = response.data;
+                if (result.success) {
+                    this.$Message.info("收藏成功");
+                    this.getSeaarchWeibo(this.q)
+                    // this.getSearchUserList(this.q)
+                } else {
+                    this.$Message.info(result.msg);
+                }
+            })
+        },
+        handleUnCollectionClick(weiboId) {
+            this.$axios.post('/api/delete-collection', {
+                userId: this.$store.state.user.userId,
+                weiboId: weiboId
+            }).then(response => {
+                let result = response.data;
+                if (result.success) {
+                    this.$Message.info("取消收藏成功");
+                    this.getSeaarchWeibo(this.q)
+                    // this.getSearchUserList(this.q)
+                } else {
+                    this.$Message.info(result.msg);
+                }
+            })
+        },
         getSeaarchWeibo(q) {
             // console.log("搜索参数：", q);
             //'/api/get-all-weibo-of-home-page?userId='+this.$store.state.user.userId + '&pageNum' + pageNum
@@ -337,7 +400,7 @@ export default {
                 let result = response.data;
                 if (result.success) {
                     this.$Message.info("取消关注成功")
-                    this.getSearchUserList()
+                    this.getSearchUserList(this.q)
                 } else {
                     this.$Message.info(result.msg)
                 }
@@ -351,7 +414,7 @@ export default {
                 let result = response.data;
                 if (result.success) {
                     this.$Message.info("关注成功")
-                    this.getSearchUserList()
+                    this.getSearchUserList(this.q)
                 } else {
                     this.$Message.info(result.msg)
                 }

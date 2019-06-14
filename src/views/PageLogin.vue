@@ -74,6 +74,7 @@ export default {
                         if (result.success) {
                             let user = result.data;
                             this.$store.commit('setUser', user);
+                            console.log("登录用户信息",user);
                             this.$axios.get('/api/get-user-data?userId='+user.userId).then(
                                 response =>{
                                     let result2=response.data;
@@ -87,7 +88,7 @@ export default {
                                 }
                             )
                         } else {
-                            this.$Message.error('登录失败');
+                            this.$Message.error('密码不正确');
                             this.loading = false;
                             this.isDisable = false;
                         }

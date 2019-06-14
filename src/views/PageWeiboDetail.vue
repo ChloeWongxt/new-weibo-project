@@ -603,13 +603,12 @@
             }).then(response => {
                 let result = response.data;
                 if (result.success) {
-                    this.$Message.info("转发成功")
+                    this.$Message.info("转发微博成功")
                     this.getWeiboDetail();
                 } else {
                     this.$Message.info(result.msg)
                 }
             })
-            this.$Message.info('转发微博成功');
         },
         cancel2() {
             this.$Message.info('取消转发');

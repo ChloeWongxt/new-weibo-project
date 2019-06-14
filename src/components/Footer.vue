@@ -1,15 +1,15 @@
 <template>
     <div>
-    <v-footer  height="100%" width="100%">
-        <v-card flat tile class="white text-xs-center" style="padding-top: 10px">
+    <v-footer  height="100%" width="2954.94px">
+        <v-card flat tile class="white text-xs-center" style="padding-top: 10px;text-align: center;width:2954.94px ">
             <v-card-text class=" pt-0">
-                Phasellus feugiat arcu sapien, et iaculis ipsum elementum sit amet. Mauris cursus commodo interdum. Praesent ut risus eget metus luctus accumsan id ultrices nunc. Sed at orci sed massa consectetur dignissim a sit amet dui. Duis commodo vitae velit et faucibus. Morbi vehicula lacinia malesuada. Nulla placerat augue vel ipsum ultrices, cursus iaculis dui sollicitudin. Vestibulum eu ipsum vel diam elementum tempor vel ut orci. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.
+                友情链接：@新浪微博 @QQ空间 @人人网
             </v-card-text>
 
             <v-divider></v-divider>
 
             <v-card-text>
-                &copy;2019 — <strong>Chloe</strong>
+                &copy;2019 — <strong>大数据学院-王雪婷Chloe</strong>
             </v-card-text>
         </v-card>
     </v-footer>

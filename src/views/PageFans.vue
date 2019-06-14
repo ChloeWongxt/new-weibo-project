@@ -12,7 +12,11 @@
               </div>
               <div class="pf_username">
                 <h1 class="username">{{thisUser.nickName}}</h1>
-                <p>{{thisUser.userPerSignature}}</p>
+                <p style="max-width: 777px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis ">{{thisUser.userPerSignature}}</p>
+                  <div v-if="thisUser.userId!=$store.state.user.userId">
+                      <Button type="warning" v-if="!thisUser.follow" @click="handleFollowClick(thisUser.userId)">未关注</Button>
+                      <Button type="success" v-if="thisUser.follow" @click="handleUnFollowClick(thisUser.userId)">已关注</Button>
+                  </div>
               </div>
             </Col>
           </Row>
@@ -77,7 +81,7 @@
                       <sui-feed v-for="(item,index) in fansUser" :key="item.userId">
                         <sui-feed-event>
                           <sui-feed-label>
-                            <sui-image :src="item.userAvatar" />
+                            <sui-image :src="item.userAvatar" style="height: 40px;width: 40px;"/>
                           </sui-feed-label>
                           <sui-feed-content>
                             {{item.nickName}}
@@ -125,7 +129,7 @@
                       <sui-feed v-for="(item,index) in followUser" :key="item.userId">
                         <sui-feed-event>
                           <sui-feed-label>
-                            <sui-image :src="item.userAvatar" />
+                            <sui-image :src="item.userAvatar" style="height: 40px;width: 40px;" />
                           </sui-feed-label>
                           <sui-feed-content>
                             {{item.nickName}}

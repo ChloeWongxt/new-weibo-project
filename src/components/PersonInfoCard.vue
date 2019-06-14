@@ -4,7 +4,9 @@
             <div class="headpic">
                 <a bpfilter="page_frame" href="#" :title="this.$store.state.user.nickName">
                     <!--个人头像-->
+                    <router-link :to="'/personhome/' + $store.state.user.userId">
                     <img class="W_face_radius" :src="this.$store.state.user.userAvatar" width="60" height="60" :alt="this.$store.state.user.nickName">
+                    </router-link>
                 </a>
             </div>
         </div>
@@ -15,20 +17,26 @@
             <ul class="user_atten clearfix W_f18" style="list-style-type:none;margin-left: 22px">
                 <li class="S_line1">
                     <a bpfilter="page_frame" href="#" class="S_txt1">
+                        <router-link :to="'/pagefans/'+$store.state.user.userId">
                         <strong node-type="follow">{{this.$store.state.userdata.followAmount}}</strong>
                         <span class="S_txt2">关注</span>
+                        </router-link>
                     </a>
                 </li>
                 <li class="S_line1">
                     <a bpfilter="page_frame" href="#" class="S_txt1">
+                        <router-link :to="'/pagefans/'+$store.state.user.userId">
                         <strong node-type="fans">{{this.$store.state.userdata.beFollowedAmount}}</strong>
                         <span class="S_txt2">粉丝</span>
+                        </router-link>
                     </a>
                 </li>
                 <li class="S_line1">
                     <a bpfilter="page_frame" href="#" class="S_txt1">
+                        <router-link :to="'/personhome/' + $store.state.user.userId">
                         <strong node-type="weibo">{{this.$store.state.userdata.weiboAmount}}</strong>
                         <span class="S_txt2">微博</span>
+                        </router-link>
                     </a>
                 </li>
             </ul>

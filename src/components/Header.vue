@@ -14,13 +14,8 @@
                     </Col>
                     <Col span="10" style="margin-top: 10px">
                         <!--搜索框部分-->
-                        <!--<div class="search">-->
                         <Input search placeholder="搜索用户/微博" v-model="search" @on-click="handleSearchClick"
                                @on-enter="handleSearchClick"/>
-                        <!--<span class="placeholder">大家正在搜</span>-->
-                        <!--<input type="text" class="W_input" :value="search">-->
-                        <!--<a href="javascript:void(0);" class="iconfont icon-chazhao ficon_search S_ficon" @click="handleSearchClick"></a>-->
-                        <!--</div>-->
                     </Col>
                     <Col span="6">
                         <!--头部导航部分-->
@@ -40,22 +35,33 @@
                                     <li>
                                         <router-link to="/register" class="S_txt1">注册</router-link>
                                     </li>
-                                    <li class="W_vline S_line1"></li>
+                                    <li class="W_vline S_line1" v-if="!this.$store.state.user"></li>
+                                </ul>
+                            </div>
+                            <div class="gn_login" v-if="!this.$store.state.user">
+                                <ul class="gn_login_list">
+                                    <li>
+                                        <router-link to="/login" class="S_txt1">登录</router-link>
+                                    </li>
+                                    <!--<li class="W_vline S_line1"></li>-->
                                 </ul>
                             </div>
                         </div>
                     </Col>
                     <Col span="3">
                         <!--用户设置显示部分-->
-                        <Row>
-                            <v-avatar size="40" v-if="this.$store.state.user"
-                                      style="float: left;text-overflow: ellipsis">
-                                <Icon size="20" type="md-person"/>
+                        <Row v-if="this.$store.state.user">
+                            <Col span="6">
+                                <v-avatar size="40">
+                                    <Icon size="20" type="md-person"/>
+                                </v-avatar>
+                            </Col>
+                            <Col span="18" style="text-align:left;line-height:48px;vertical-align: middle;">
                                 {{this.$store.state.user.nickName}}
-                            </v-avatar>
+                            </Col>
                         </Row>
                     </Col>
-                    <Col span="1">
+                    <Col span="1" v-if="this.$store.state.user">
                         <Dropdown placement="bottom-end" @on-click="handleSetClick">
                             <a bpfilter="page_frame" href="javascript:void(0)" class="S_txt1">
                                 <v-avatar size="40">
@@ -147,14 +153,14 @@ body, div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, code, form, fiel
 
 .W_global_nav {
     position: relative;
-    width: 80%;
-    height: 48px;
+    /*width: 80%;*/
+    /*height: 48px;*/
     margin: 0 auto;
     display: block;
 }
 
 .nv-logo {
-    float: left;
+    float: right;
     position: relative;
     width: 140px;
     height: 48px;
@@ -164,8 +170,8 @@ body, div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, code, form, fiel
     position: absolute;
     left: -50px;
     top: 0;
-    width: 190px;
-    height: 48px;
+    /*width: 190px;*/
+    /*height: 48px;*/
     cursor: pointer;
 }
 
@@ -176,7 +182,7 @@ body, div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, code, form, fiel
     height: 48px;
     cursor: pointer;
     background: url("../assets/wb-logo.png") no-repeat 0 40%;
-    background-size: 60%;
+    /*background-size: 60%;*/
 }
 
 .nv-logo .box img {
@@ -234,13 +240,13 @@ a {
     text-decoration: none;
 }
 
-.W_global_nav .S_ficon, .W_global_nav .S_ficon_dis, .W_global_nav a.S_ficon_dis:hover, .W_global_nav a:hover .S_ficon_dis {
+ .W_global_nav a:hover{
     color: #696e78;
 }
 
 .W_global_nav .gn_position {
-    float: right;
-    margin-left: -11px;
+    float: left;
+    margin-left: 85px;
 }
 
 .W_global_nav .gn_nav {

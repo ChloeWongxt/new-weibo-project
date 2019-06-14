@@ -23,17 +23,18 @@
             <Panel name="password" hide-arrow class="pandle-item">
               昵称名：{{$store.state.user.nickName}} <span style="float: right;margin-right: 10px">修改密码</span>
               <div slot="content" class="pandle-item">
+
                 <div style="margin: 10px 0">
-                  原密码：<sui-input type="password" placeholder="请输入原密码" icon="search" />
+                  原密码：<sui-input v-model="org_password" type="password" placeholder="请输入原密码" icon="user" />
                 </div>
+                  <div style="margin: 10px 0">
+                      新密码：<sui-input v-model="new_password" type="password" placeholder="请输入新密码" icon="user" />
+                  </div>
+                <br/>
+
 
                 <br/>
-                <div>
-                  新密码：<sui-input type="password" placeholder="请输入新密码" icon="search" />
-                </div>
-
-                <br/>
-                <Button type="warning">确认修改</Button>
+                <Button type="warning" @click="handleModifyPass">确认修改</Button>
               </div>
             </Panel>
             <Panel name="phoneNum" hide-arrow class="pandle-item">
@@ -128,10 +129,33 @@ import PersonInfoForm from '../components/PersonInfoForm'
           avatarScr:'',
           data:{
               type:'avatar'
-          }
+          },
+          org_password:'',
+          new_password:''
       }
     },
     methods:{
+        handleModifyPass(){
+            if (this.org_password==null||this.org_password==''){
+                this.$Message.info("请输入原密码");
+            } else {
+                if (this.new_password==null||this.new_password==''){
+                    this.$Message.info("请输入新密码")
+                } else {
+                    //发送修改密码请求
+                    this.$axios.get(`/api/update-user-pass?loginName=${this.$store.state.user.logName}&org_password=${this.org_password}&new_password=${this.new_password}`).then(response => {
+                        let result = response.data;
+                        if (result.success) {
+                            this.$Message.info("修改密码成功")
+                            this.org_password=''
+                            this.new_password=''
+                        }else {
+                            this.$Message.info(result.msg)
+                        }
+                    })
+                }
+            }
+        },
         handleAdd () {
             if (this.count.length) {
                 this.count.push(this.count[this.count.length - 1] + 1);
